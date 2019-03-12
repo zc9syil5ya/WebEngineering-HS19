@@ -51,7 +51,9 @@
 
 <div class="padded">
     <label>Result</label>
-    <output>${calculatorInstance.result}</output>
+    <mvc:decorate grade="${calculatorInstance.result}">
+        <output>${calculatorInstance.result}</output>
+    </mvc:decorate>
 </div>
 
 </body>
