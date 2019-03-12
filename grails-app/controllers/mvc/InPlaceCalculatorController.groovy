@@ -4,26 +4,26 @@ import grails.validation.Validateable
 
 class InPlaceCalculatorController {
 
-    def calc(CalculatorModel model) {
-        model.en = Math.round(model.en * 10) / 10
-        model.exam = Math.round(model.exam * 10) / 10
-        model.result = Math.round((model.en + model.exam) / 2)
-        if (model.errors.fieldErrors.any { it.field == "en" }) {
-            model.result = "Cannot calculate. En value was invalid."
-            // Determines the CSS class which should be used on client side
-            model.en_error = "error"
-            // Specifies the error message displayed as tooltip
-            model.en_error_message = "value '$model.en' is not valid, must be between 1.0 and 6.0."
+    def calc(CalculatorModel calcModel) {
+        calcModel.en = Math.round(calcModel.en * 10) / 10
+        calcModel.exam = Math.round(calcModel.exam * 10) / 10
+        calcModel.result = Math.round((calcModel.en + calcModel.exam) / 2)
+        if (calcModel.errors.fieldErrors.any { it.field == "en" }) {
+            calcModel.en_error = "error"
+            calcModel.en_error_message = "value '$calcModel.en' is not valid, must be between 1.0 and 6.0."
         }
-        if (0.0 == model.exam) {
-            model.result = "Cannot calculate. Exam value was invalid."
+        if (calcModel.errors.fieldErrors.any { it.field == "exam" }) {
+            calcModel.exam_error = "error"
+            calcModel.exam_error_message = "value '$calcModel.exam' is not valid, must be between 1.0 and 6.0."
         }
-        render view: 'calc', model: [model: model]
+        if (calcModel.hasErrors()) {
+            calcModel.result = "Cannot calculate. Input data was invalid."
+        }
+        render view: 'calc', model: [calculatorInstance: calcModel]
     }
+
 }
 
-// https://docs.grails.org/latest/guide/validation.html
-// https://docs.grails.org/latest/ref/Constraints/Usage.html
 class CalculatorModel implements Validateable {
 
     double en = 0.0
@@ -32,9 +32,10 @@ class CalculatorModel implements Validateable {
 
     String en_error = ""
     String en_error_message = ""
+    String exam_error = ""
+    String exam_error_message = ""
 
     static constraints = {
-        // scale: number of digits to the right of the decimal point
         en min: 1d, max: 6d, scale: 1
         exam min: 1d, max: 6d, scale: 1
         result nullable: true
